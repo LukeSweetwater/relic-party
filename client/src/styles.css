@@ -145,3 +145,17 @@ button.seat { background: none; border: none; padding: 0; min-height: 0; color: 
 button.seat:focus-visible { outline: 2px solid var(--amber); outline-offset: 4px; }
 .winner { overflow-wrap: anywhere; }
 .ranked .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Bigger rooms (up to 17): shrink seats so neighbours don't overlap */
+.ring.crowded .seat { width: 66px; } .ring.crowded .seat-name { max-width: 66px; font-size: 11px; }
+.ring.crowded .seat .avatar { width: 36px; height: 36px; }
+.ring.packed .seat { width: 58px; } .ring.packed .seat-name { max-width: 58px; font-size: 11px; }
+.ring.packed .seat .avatar { width: 32px; height: 32px; }
+.ring.packed .lives i { width: 5px; height: 5px; }
+@media (max-width: 420px) {
+  .ring.crowded .seat { width: 52px; } .ring.crowded .seat-name { max-width: 52px; font-size: 10px; }
+  .ring.crowded .seat .avatar { width: 28px; height: 28px; }
+  .ring.packed .seat { width: 44px; } .ring.packed .seat-name { max-width: 46px; font-size: 9.5px; }
+  .ring.packed .seat .avatar { width: 24px; height: 24px; }
+  .ring.packed .lives { gap: 2px; } .ring.packed .lives i { width: 4px; height: 4px; }
+}

@@ -31,9 +31,9 @@ describe('Room lobby', () => {
     const { room, ids } = setup(1);
     expect(room.start(ids[0])).toEqual({ ok: false, error: 'Need at least 2 players.' });
   });
-  it('caps the room at 15 players', () => {
-    const { room } = setup(15);
-    expect(room.join('Late', 0)).toEqual({ error: 'Room is full (15 players max).' });
+  it('caps the room at 17 players', () => {
+    const { room } = setup(17);
+    expect(room.join('Late', 0)).toEqual({ error: 'Room is full (17 players max).' });
   });
   it('rejects duplicate or empty nicknames', () => {
     const { room } = setup(1);

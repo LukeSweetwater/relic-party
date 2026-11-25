@@ -102,7 +102,7 @@ export function Game({ state, me, offset }: { state: RoomState; me: Me; offset: 
         <h1>{state.category}</h1>
       </header>
 
-      <section className="ring" aria-label="Players">
+      <section className={`ring ${n > 16 ? 'packed' : n > 12 ? 'crowded' : ''}`} aria-label="Players">
         {state.players.map((p, i) => {
           const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
           const style = { left: `${50 + Math.cos(angle) * 42}%`, top: `${50 + Math.sin(angle) * 42}%` };

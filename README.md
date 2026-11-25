@@ -1,6 +1,6 @@
 # Relic Party
 
-A real-time browser party game for 2–15 friends. Everyone sees the same category; whoever holds the relic must name something that fits, then it passes on. The fuse is a fixed 15 seconds and resets on every pass. If it runs out on you, you lose a life. Last player standing wins.
+A real-time browser party game for 2–17 friends. Everyone sees the same category; whoever holds the relic must name something that fits, then it passes on. The fuse is a fixed 15 seconds and resets on every pass. If it runs out on you, you lose a life. Last player standing wins.
 
 **Status:** Phase 4. 32 categories, host can remove players, nicknames up to 25 characters. Phase 3: Pixel-art relic, crew and storm-valley background; heartbeat loops, burst and event sound effects with a mute button. Hosted on Railway.
 
