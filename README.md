@@ -37,3 +37,14 @@ Open http://localhost:5173 in a few browser tabs (or on phones on the same Wi‑
 ## Adding categories
 
 Edit `shared/categories.json`. Each answer can list aliases: `"tangerine|naartjie"` accepts both and shows "tangerine".
+
+## Hosting (Railway)
+
+The repo deploys as one Docker service: the `Dockerfile` builds the client and server, and `railway.json` sets the health check (`/healthz`) and restart policy. Any host that runs a Dockerfile (Render, Fly.io) works the same way.
+
+1. Sign in at https://railway.com with GitHub.
+2. **New Project → Deploy from GitHub repo →** pick `relic-party`. Railway finds the Dockerfile and builds it.
+3. In the service, open **Settings → Networking → Generate Domain**. That URL is the game; share it (or a `/r/CODE` room link) with friends.
+4. Every push to `main` redeploys automatically. GitHub Actions (`.github/workflows/ci.yml`) runs the tests on every push and pull request.
+
+Rooms live in memory, so a redeploy ends games in progress. Deploy when nobody is playing.
