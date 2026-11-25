@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from 'react';
-import { AVATARS } from '../../../shared/types';
+import { AVATARS, NAME_MAX } from '../../../shared/types';
 import { Avatar } from '../Avatar';
 import { joinRoom, session } from '../net';
 
-export function Home({ onJoined, initialCode }: { onJoined: (code: string, id: string, token: string) => void; initialCode: string }) {
+export function Home({ onJoined, initialCode, notice }: { onJoined: (code: string, id: string, token: string) => void; initialCode: string; notice?: string }) {
   const saved = session.profile;
   const [name, setName] = useState(saved.name ?? '');
   const [avatar, setAvatar] = useState(saved.avatar ?? 0);
@@ -30,11 +30,12 @@ export function Home({ onJoined, initialCode }: { onJoined: (code: string, id: s
         <img className="hero-relic" src="/assets/sprites/relic-awake.png" alt="" width={112} height={112} />
         <h1 className="logo">RELIC<br />PARTY</h1>
       </div>
+      {notice && <p className="notice" role="alert">{notice}</p>}
       <p className="tagline">Name it. Pass the relic. Don't be holding it when it wakes.</p>
 
       <label className="field">
-        <span>Nickname</span>
-        <input value={name} maxLength={16} onChange={(e) => setName(e.target.value)} autoComplete="off" placeholder="e.g. Nia" />
+        <span className="field-head">Nickname <small className={name.length >= NAME_MAX ? 'at-limit' : ''}>{name.length}/{NAME_MAX}</small></span>
+        <input value={name} maxLength={NAME_MAX} onChange={(e) => setName(e.target.value.slice(0, NAME_MAX))} autoComplete="off" placeholder="e.g. Nia" />
       </label>
 
       <fieldset className="field">

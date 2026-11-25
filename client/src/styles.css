@@ -127,3 +127,21 @@ input:focus, select:focus, button:focus-visible { outline: 2px solid var(--amber
   .category h1 { font-size: 16px; }
   .logo { font-size: 22px; }
 }
+
+/* Phase 4: kick controls, name counter, notices */
+.field-head { display: flex; justify-content: space-between; align-items: baseline; }
+.field-head small { font-size: 12px; color: var(--muted); }
+.field-head small.at-limit { color: var(--amber); }
+.notice { margin: 0; padding: 10px 12px; border: 1px solid var(--amber); background: rgba(255, 179, 71, 0.08); color: var(--amber); }
+.lobby .crew li { flex-direction: column; align-items: stretch; }
+.crew-row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.crew .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+button.small { min-height: 36px; padding: 4px 10px; font-size: 13px; color: var(--muted); }
+button.danger { background: var(--red); border-color: var(--red); color: #fff; }
+.confirm-kick { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; margin-top: 4px; border: 1px solid var(--red); background: rgba(208, 68, 58, 0.1); }
+.confirm-kick span { overflow-wrap: anywhere; }
+.confirm-actions { display: flex; gap: 8px; }
+button.seat { background: none; border: none; padding: 0; min-height: 0; color: inherit; font: inherit; cursor: pointer; }
+button.seat:focus-visible { outline: 2px solid var(--amber); outline-offset: 4px; }
+.winner { overflow-wrap: anywhere; }
+.ranked .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

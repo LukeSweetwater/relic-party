@@ -72,6 +72,19 @@ host.emit('game:again');
 await waitFor(() => clients.every((c) => c.state?.phase === 'lobby'));
 assert(true, 'play again returns everyone to the lobby');
 
+// Host removes the last player; they are told and dropped from the room.
+const target = clients[2];
+let kickedNotice = false;
+target.s.on('room:kicked', () => { kickedNotice = true; });
+const notHost = await call<{ ok: boolean }>((cb) => clients[1].s.emit('room:kick', target.id, cb));
+assert(!notHost.ok, 'a non-host cannot remove players');
+const kicked = await call<{ ok: boolean }>((cb) => host.emit('room:kick', target.id, cb));
+assert(kicked.ok, 'the host removes a player');
+await waitFor(() => kickedNotice && clients[0].state!.players.length === 2);
+assert(true, 'the removed player is told, and everyone else sees 2 players');
+const after = await call<{ ok: boolean }>((cb) => target.s.emit('game:answer', 'x', cb));
+assert(!after.ok, 'the removed player can no longer act in the room');
+
 for (const c of clients) c.s.close();
 outsider.close();
 http.close();

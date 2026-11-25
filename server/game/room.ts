@@ -1,5 +1,5 @@
 import {
-  AVATAR_COUNT, DEFAULT_SETTINGS, MAX_PLAYERS, MIN_PLAYERS,
+  AVATAR_COUNT, DEFAULT_SETTINGS, MAX_PLAYERS, MIN_PLAYERS, NAME_MAX,
   type AcceptedAnswer, type AnswerResult, type GameEvent, type Phase, type PublicPlayer, type RoomState, type Settings,
 } from '../../shared/types.js';
 import { matchAnswer, type Category } from './answers.js';
@@ -33,8 +33,6 @@ export interface RoomOptions {
   onChange?: () => void;
   onEvent?: (e: GameEvent) => void;
 }
-
-export const NAME_MAX = 16;
 
 export function cleanName(raw: string): string {
   return raw.replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX);
@@ -120,7 +118,18 @@ export class Room {
     this.onChange();
   }
 
-  /** Removes a player entirely (lobby only, or after a long disconnect). */
+  /** The host removes another player, in the lobby or mid-game. */
+  kick(byId: string, targetId: string): { ok: boolean; error?: string } {
+    if (byId !== this.hostId) return { ok: false, error: 'Only the host can remove players.' };
+    if (byId === targetId) return { ok: false, error: "You can't remove yourself." };
+    const target = this.players.get(targetId);
+    if (!target) return { ok: false, error: 'That player has already left.' };
+    this.onEvent({ type: 'kicked', playerId: targetId, name: target.name });
+    this.remove(targetId);
+    return { ok: true };
+  }
+
+  /** Removes a player entirely (kicked, or gone too long from the lobby). */
   remove(id: string) {
     if (!this.players.has(id)) return;
     if (this.phase === 'playing') {

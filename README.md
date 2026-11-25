@@ -2,7 +2,7 @@
 
 A real-time browser party game for 2–15 friends. Everyone sees the same category; whoever holds the relic must name something that fits, then it passes on. The fuse is a fixed 15 seconds and resets on every pass. If it runs out on you, you lose a life. Last player standing wins.
 
-**Status:** Phase 3. Pixel-art relic, crew and storm-valley background; heartbeat loops, burst and event sound effects with a mute button. Hosted on Railway.
+**Status:** Phase 4. 32 categories, host can remove players, nicknames up to 25 characters. Phase 3: Pixel-art relic, crew and storm-valley background; heartbeat loops, burst and event sound effects with a mute button. Hosted on Railway.
 
 ## Run it locally
 
@@ -28,7 +28,7 @@ Open http://localhost:5173 in a few browser tabs (or on phones on the same Wi‑
 
 ## How it's built
 
-- `shared/` – types used by both sides, and `categories.json` (12 starter categories, aliases separated by `|`)
+- `shared/` – types used by both sides, and `categories.json` (32 categories, aliases separated by `|`)
 - `server/game/room.ts` – the game engine: one `Room` per game. The server owns all state and the fuse timer; clients only send answers.
 - `server/game/answers.ts` – answer matching: ignores case, accents and punctuation, accepts simple plurals and one typo in longer words
 - `server/app.ts` – Express + Socket.IO: rooms, reconnects (60 s grace), rate limiting, static hosting

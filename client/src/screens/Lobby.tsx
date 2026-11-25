@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { MAX_PLAYERS, MIN_PLAYERS, type RoomState } from '../../../shared/types';
 import { Avatar } from '../Avatar';
+import { ConfirmKick } from '../ConfirmKick';
 import { socket } from '../net';
 import type { Me } from '../App';
 
 export function Lobby({ state, me }: { state: RoomState; me: Me }) {
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [kicking, setKicking] = useState<string | null>(null);
   const isHost = state.players.find((p) => p.id === me.playerId)?.isHost ?? false;
   const link = `${location.origin}/r/${state.code}`;
 
@@ -25,9 +27,15 @@ export function Lobby({ state, me }: { state: RoomState; me: Me }) {
       <ul className="crew">
         {state.players.map((p) => (
           <li key={p.id} className={p.connected ? '' : 'away'}>
-            <Avatar avatar={p.avatar} size={32} dim={!p.connected} />
-            <span className="name">{p.name}{p.id === me.playerId && ' (you)'}</span>
-            {p.isHost && <span className="tag">host</span>}
+            <div className="crew-row">
+              <Avatar avatar={p.avatar} size={32} dim={!p.connected} />
+              <span className="name">{p.name}{p.id === me.playerId && ' (you)'}</span>
+              {p.isHost && <span className="tag">host</span>}
+              {isHost && p.id !== me.playerId && kicking !== p.id && (
+                <button className="small" onClick={() => setKicking(p.id)} aria-label={`Remove ${p.name}`}>Remove</button>
+              )}
+            </div>
+            {kicking === p.id && <ConfirmKick playerId={p.id} name={p.name} onDone={() => setKicking(null)} />}
           </li>
         ))}
       </ul>

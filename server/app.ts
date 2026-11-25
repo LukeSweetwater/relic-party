@@ -99,6 +99,24 @@ export function createApp(opts: { staticDir?: string } = {}) {
     socket.on('game:typing', (text) => { const c = current(); if (c) c.room.setTyping(c.playerId, String(text ?? '')); });
     socket.on('game:again', () => { const c = current(); if (c) c.room.reset(c.playerId); });
 
+    socket.on('room:kick', async (targetId, cb) => {
+      const c = current();
+      const res = c ? c.room.kick(c.playerId, String(targetId ?? '')) : { ok: false, error: 'Not in a room.' };
+      if (res.ok && c) {
+        // Tell the kicked player's open connections and take them out of the room's broadcasts.
+        for (const s of await io.in(c.room.code).fetchSockets()) {
+          if (s.data.playerId !== targetId) continue;
+          s.emit('room:kicked');
+          s.leave(c.room.code);
+          s.data.code = undefined;
+          s.data.playerId = undefined;
+        }
+        clearTimeout(dropTimers.get(`${c.room.code}:${targetId}`));
+        lobby.checkEmpty(c.room);
+      }
+      if (typeof cb === 'function') cb(res);
+    });
+
     socket.on('disconnect', () => {
       const c = current();
       if (!c) return;

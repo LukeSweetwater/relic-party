@@ -40,6 +40,20 @@ describe('Room lobby', () => {
     expect(room.join('p0', 1)).toHaveProperty('error');
     expect(room.join('   ', 1)).toHaveProperty('error');
   });
+  it('caps nicknames at 25 characters', () => {
+    const { room } = setup(0);
+    const r = room.join('A'.repeat(40), 0);
+    if ('error' in r) throw new Error(r.error);
+    expect(room.publicState().players[0].name).toBe('A'.repeat(25));
+  });
+  it('only lets the host kick, and not themselves', () => {
+    const { room, ids } = setup(3);
+    expect(room.kick(ids[1], ids[2]).ok).toBe(false);
+    expect(room.kick(ids[0], ids[0]).ok).toBe(false);
+    expect(room.kick(ids[0], ids[2]).ok).toBe(true);
+    expect(room.publicState().players.map((p) => p.id)).toEqual([ids[0], ids[1]]);
+    expect(room.kick(ids[0], ids[2]).ok).toBe(false); // already gone
+  });
   it('lets a player reclaim their seat with their token', () => {
     const { room } = setup(1);
     const r = room.join('Back', 2);
@@ -118,6 +132,26 @@ describe('Room gameplay', () => {
     const { room, ids } = setup(3);
     room.setConnected(ids[0], false);
     expect(room.hostId).toBe(ids[1]);
+  });
+
+  it('kicking the holder mid-game passes the relic on', () => {
+    const { room, ids, events } = setup(3);
+    room.start(ids[0]); // P0 holds
+    room.submit(ids[0], 'apple'); // P1 holds
+    expect(room.kick(ids[0], ids[1]).ok).toBe(true);
+    const s = room.publicState();
+    expect(s.phase).toBe('playing');
+    expect(s.holderId).toBe(ids[2]);
+    expect(events).toContainEqual({ type: 'kicked', playerId: ids[1], name: 'P1' });
+  });
+
+  it('kicking down to one player ends the game with a winner', () => {
+    const { room, ids } = setup(2);
+    room.start(ids[0]);
+    room.kick(ids[0], ids[1]);
+    const s = room.publicState();
+    expect(s.phase).toBe('ended');
+    expect(s.winnerId).toBe(ids[0]);
   });
 
   it('keeps the game going if the holder leaves mid-game', () => {

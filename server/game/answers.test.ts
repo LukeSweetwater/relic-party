@@ -25,7 +25,7 @@ describe('matchAnswer', () => {
     expect(matchAnswer(fruits, '   ')).toBeNull();
   });
   it('ships a starter pack where every category has 30+ answers', () => {
-    expect(STARTER_PACK.length).toBeGreaterThanOrEqual(12);
+    expect(STARTER_PACK.length).toBeGreaterThanOrEqual(30);
     for (const c of STARTER_PACK) expect(new Set(c.lookup.values()).size).toBeGreaterThanOrEqual(30);
   });
 });

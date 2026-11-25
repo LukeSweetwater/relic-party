@@ -15,6 +15,7 @@ export function App() {
   const [state, setState] = useState<RoomState | null>(null);
   const [me, setMe] = useState<Me | null>(null);
   const [connected, setConnected] = useState(socket.connected);
+  const [notice, setNotice] = useState('');
   const offset = useRef(0); // server clock minus local clock
   const meRef = useRef<Me | null>(null);
   meRef.current = me;
@@ -32,13 +33,22 @@ export function App() {
       }
     };
     const onDisconnect = () => setConnected(false);
+    const onKicked = () => {
+      const code = meRef.current?.code;
+      if (code) session.clearToken(code);
+      setMe(null);
+      setState(null);
+      history.replaceState(null, '', '/');
+      setNotice('The host removed you from the room.');
+    };
+    socket.on('room:kicked', onKicked);
     socket.on('room:state', onState);
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     if (socket.connected) onConnect();
     return () => {
       socket.off('room:state', onState);
-      socket.off('connect', onConnect); socket.off('disconnect', onDisconnect);
+      socket.off('connect', onConnect); socket.off('disconnect', onDisconnect); socket.off('room:kicked', onKicked);
     };
   }, []);
 
@@ -61,12 +71,13 @@ export function App() {
 
   const onJoined = (code: string, playerId: string, token: string) => {
     session.setToken(code, token);
+    setNotice('');
     history.replaceState(null, '', `/r/${code}`);
     setMe({ code, playerId });
   };
 
   let screen;
-  if (!me || !state) screen = <Home onJoined={onJoined} initialCode={codeFromUrl() ?? ''} />;
+  if (!me || !state) screen = <Home onJoined={onJoined} initialCode={codeFromUrl() ?? ''} notice={notice} />;
   else if (state.phase === 'lobby') screen = <Lobby state={state} me={me} />;
   else if (state.phase === 'playing') screen = <Game state={state} me={me} offset={offset} />;
   else screen = <Results state={state} me={me} />;

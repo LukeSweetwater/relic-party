@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent, type MutableRefObject } from 'react';
 import type { RoomState } from '../../../shared/types';
 import { Avatar } from '../Avatar';
+import { ConfirmKick } from '../ConfirmKick';
 import { onGameEvent } from '../events';
 import { socket } from '../net';
 import { sound, type Loop } from '../sound';
@@ -38,6 +39,8 @@ export function Game({ state, me, offset }: { state: RoomState; me: Me; offset: 
   const [feedback, setFeedback] = useState('');
   const [bursting, setBursting] = useState<string | null>(null); // player the relic just burst on
   const [shake, setShake] = useState(0);
+  const [kicking, setKicking] = useState<string | null>(null);
+  const isHost = state.players.find((p) => p.id === me.playerId)?.isHost ?? false;
   const input = useRef<HTMLInputElement>(null);
   const left = useCountdown(state.fuseEndsAt, offset);
   const myTurn = state.holderId === me.playerId;
@@ -69,6 +72,9 @@ export function Game({ state, me, offset }: { state: RoomState; me: Me; offset: 
         : `The relic burst on ${name(e.playerId)}!${e.livesLeft ? '' : ' They\'re out.'}`);
     } else if (e.type === 'pass') {
       setFeedback('');
+    } else if (e.type === 'kicked') {
+      setFeedback(`${e.name} was removed by the host.`);
+      setKicking((k) => (k === e.playerId ? null : k));
     } else if (e.type === 'reject' && e.playerId === me.playerId) {
       setShake((n) => n + 1);
     }
@@ -101,14 +107,17 @@ export function Game({ state, me, offset }: { state: RoomState; me: Me; offset: 
           const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
           const style = { left: `${50 + Math.cos(angle) * 42}%`, top: `${50 + Math.sin(angle) * 42}%` };
           const holding = p.id === state.holderId && !bursting;
+          const canKick = isHost && p.id !== me.playerId;
+          const Seat = canKick ? 'button' : 'div';
           return (
-            <div key={p.id} className={`seat ${holding ? 'holding' : ''} ${p.lives === 0 ? 'out' : ''} ${bursting === p.id ? 'hit' : ''}`} style={style}>
+            <Seat key={p.id} className={`seat ${holding ? 'holding' : ''} ${p.lives === 0 ? 'out' : ''} ${bursting === p.id ? 'hit' : ''} ${canKick ? 'kickable' : ''}`}
+              style={style} {...(canKick ? { type: 'button' as const, onClick: () => setKicking(p.id), 'aria-label': `${p.name}, tap to remove` } : {})}>
               <Avatar avatar={p.avatar} size={40} dim={p.lives === 0 || !p.connected} />
               <span className="seat-name">{p.name}</span>
               <span className="lives" aria-label={`${p.lives} lives`}>
                 {Array.from({ length: state.settings.lives }, (_, k) => <i key={k} className={k < p.lives ? 'on' : ''} />)}
               </span>
-            </div>
+            </Seat>
           );
         })}
 
@@ -122,6 +131,8 @@ export function Game({ state, me, offset }: { state: RoomState; me: Me; offset: 
         </div>
         <div className={`timer ${seconds <= 5 ? 'hot' : ''}`} aria-hidden="true">{bursting ? '' : seconds}</div>
       </section>
+
+      {kicking && (() => { const p = state.players.find((x) => x.id === kicking); return p ? <ConfirmKick playerId={p.id} name={p.name} onDone={() => setKicking(null)} /> : null; })()}
 
       <p className="holder">
         {myTurn ? <strong className="your-turn">You have the relic. Name something!</strong> : iAmOut ? 'You\'re out. Watch the others squirm.' : `${holder?.name ?? '…'} has the relic`}

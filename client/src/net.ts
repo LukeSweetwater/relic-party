@@ -9,6 +9,7 @@ const tokenKey = (code: string) => `relic:token:${code}`;
 export const session = {
   getToken: (code: string) => sessionStorage.getItem(tokenKey(code)) ?? undefined,
   setToken: (code: string, token: string) => sessionStorage.setItem(tokenKey(code), token),
+  clearToken: (code: string) => sessionStorage.removeItem(tokenKey(code)),
   get profile(): { name: string; avatar: number } {
     try { return JSON.parse(localStorage.getItem('relic:profile') ?? '') ; } catch { return { name: '', avatar: Math.floor(Math.random() * 10) }; }
   },

@@ -3,6 +3,8 @@
 export const MAX_PLAYERS = 15;
 export const MIN_PLAYERS = 2;
 export const AVATAR_COUNT = 10;
+/** Longest nickname allowed, in characters. */
+export const NAME_MAX = 25;
 
 /** The 10 crew avatars, matching the pixel-art sprite set. */
 export const AVATARS = [
@@ -77,7 +79,8 @@ export type GameEvent =
   | { type: 'reject'; playerId: string; reason: string }
   | { type: 'pop'; playerId: string; livesLeft: number }
   | { type: 'eliminated'; playerId: string }
-  | { type: 'win'; playerId: string };
+  | { type: 'win'; playerId: string }
+  | { type: 'kicked'; playerId: string; name: string };
 
 export interface JoinRequest {
   name: string;
@@ -94,6 +97,8 @@ export type JoinResponse =
 export interface ServerToClient {
   'room:state': (state: RoomState) => void;
   'game:event': (event: GameEvent) => void;
+  /** Sent to a player the host removed from the room. */
+  'room:kicked': () => void;
 }
 
 export interface ClientToServer {
@@ -104,4 +109,5 @@ export interface ClientToServer {
   'game:answer': (text: string, cb: (res: AnswerResult) => void) => void;
   'game:typing': (text: string) => void;
   'game:again': () => void;
+  'room:kick': (playerId: string, cb: (res: { ok: boolean; error?: string }) => void) => void;
 }
