@@ -26,7 +26,10 @@ export function Home({ onJoined, initialCode }: { onJoined: (code: string, id: s
 
   return (
     <main className="panel home">
-      <h1 className="logo">RELIC PARTY</h1>
+      <div className="hero">
+        <img className="hero-relic" src="/assets/sprites/relic-awake.png" alt="" width={112} height={112} />
+        <h1 className="logo">RELIC<br />PARTY</h1>
+      </div>
       <p className="tagline">Name it. Pass the relic. Don't be holding it when it wakes.</p>
 
       <label className="field">

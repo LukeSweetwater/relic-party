@@ -2,7 +2,7 @@
 
 A real-time browser party game for 2–15 friends. Everyone sees the same category; whoever holds the relic must name something that fits, then it passes on. The fuse is a fixed 15 seconds and resets on every pass. If it runs out on you, you lose a life. Last player standing wins.
 
-**Status:** Phase 1 (local prototype). Rooms, lobby, turns, fuse, lives, answer checking and results all work; art and sound come in Phase 3, hosting in Phase 2.
+**Status:** Phase 3. Pixel-art relic, crew and storm-valley background; heartbeat loops, burst and event sound effects with a mute button. Hosted on Railway.
 
 ## Run it locally
 
@@ -48,3 +48,8 @@ The repo deploys as one Docker service: the `Dockerfile` builds the client and s
 4. Every push to `main` redeploys automatically. GitHub Actions (`.github/workflows/ci.yml`) runs the tests on every push and pull request.
 
 Rooms live in memory, so a redeploy ends games in progress. Deploy when nobody is playing.
+
+## Art and sound
+
+- `client/public/assets/sprites/` – pixel-art PNGs: four relic stages (`relic-dormant/awake/critical/burst`), ten crew suits (`crew-0` to `crew-9`, matching `AVATARS` in `shared/types.ts`) and the background. They're tiny on purpose and are scaled up with `image-rendering: pixelated`.
+- `client/public/assets/sfx/` – original synthesized sound effects (MP3). `client/src/sound.ts` plays them through the Web Audio API: an ambient drone, a heartbeat loop that speeds up with each relic stage, and one-shots for passes, wrong answers, bursts, eliminations and the win. Phones only allow sound after a tap, so audio starts on the first touch. The speaker button mutes everything and remembers the choice.
